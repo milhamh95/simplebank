@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  postgres:
+    container_name: simplebank_postgres
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=simple_bank
+    ports:
+      - "5433:5432"
