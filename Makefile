@@ -10,7 +10,6 @@ postgres-down: ## Shutdown postgres
 createdb: ## create database
 	@docker exec -it postgres createdb --username=root --owner=root simple_bank
 
-
 .PHONY: dropdb
 dropdb: ## drop database
 	@docker exec -it postgres dropdb simple_bank
@@ -24,3 +23,7 @@ migrate-up: ## migrate up database
 migrate-down: ## migrate down database
 	@migrate -database "postgresql://root:secret@localhost:5433/simple_bank?sslmode=disable" \
 	-path=db/migration -verbose down
+
+.PHONY: sqlc
+sqlc: ## generate sqlc
+	@sqlc generate
