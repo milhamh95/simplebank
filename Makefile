@@ -27,3 +27,6 @@ migrate-down: ## migrate down database
 .PHONY: sqlc
 sqlc: ## generate sqlc
 	@sqlc generate
+
+.PHONY: test
+	@go test -v -cover ./...
