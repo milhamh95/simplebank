@@ -99,7 +99,7 @@ func (s *Store) TransferTrx(ctx context.Context, arg TransferTxParams) (Transfer
 				arg.ToAccountID,
 				arg.Amount,
 				arg.FromAccountID,
-				arg.Amount)
+				-arg.Amount)
 		}
 
 		return nil
