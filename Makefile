@@ -29,4 +29,5 @@ sqlc: ## generate sqlc
 	@sqlc generate
 
 .PHONY: test
+test: ## run test
 	@go test -v -cover ./...
