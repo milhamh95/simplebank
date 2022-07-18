@@ -31,3 +31,7 @@ sqlc: ## generate sqlc
 .PHONY: test
 test: ## run test
 	@go test -v -cover ./...
+
+.PHONY: server
+server: ## run server
+	@go run -race main.go
