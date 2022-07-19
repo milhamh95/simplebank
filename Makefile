@@ -24,6 +24,16 @@ migrate-down: ## migrate down database
 	@migrate -path db/migration -database "postgresql://root:secret@localhost:5433/simple_bank?sslmode=disable" \
 	-path=db/migration -verbose down
 
+.PHONY: migrate-up1
+migrate-up1: ## migrate up database
+	@migrate -path db/migration -database "postgresql://root:secret@localhost:5433/simple_bank?sslmode=disable" \
+	-path=db/migration -verbose up 1
+
+.PHONY: migrate-down1
+migrate-down1: ## migrate down database
+	@migrate -path db/migration -database "postgresql://root:secret@localhost:5433/simple_bank?sslmode=disable" \
+	-path=db/migration -verbose down 1
+
 .PHONY: sqlc
 sqlc: ## generate sqlc
 	@sqlc generate
