@@ -35,3 +35,7 @@ test: ## run test
 .PHONY: server
 server: ## run server
 	@go run -race main.go
+
+.PHONY: fake
+fake: ## generate fake
+	@counterfeiter -o ./db/fake ./db/sqlc Store
