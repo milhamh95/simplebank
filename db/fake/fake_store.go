@@ -65,6 +65,20 @@ type FakeStore struct {
 		result1 db.Transfer
 		result2 error
 	}
+	CreateUserStub        func(context.Context, db.CreateUserParams) (db.User, error)
+	createUserMutex       sync.RWMutex
+	createUserArgsForCall []struct {
+		arg1 context.Context
+		arg2 db.CreateUserParams
+	}
+	createUserReturns struct {
+		result1 db.User
+		result2 error
+	}
+	createUserReturnsOnCall map[int]struct {
+		result1 db.User
+		result2 error
+	}
 	DeleteAccountStub        func(context.Context, int64) error
 	deleteAccountMutex       sync.RWMutex
 	deleteAccountArgsForCall []struct {
@@ -131,6 +145,20 @@ type FakeStore struct {
 	}
 	getTransferReturnsOnCall map[int]struct {
 		result1 db.Transfer
+		result2 error
+	}
+	GetUserStub        func(context.Context, string) (db.User, error)
+	getUserMutex       sync.RWMutex
+	getUserArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	getUserReturns struct {
+		result1 db.User
+		result2 error
+	}
+	getUserReturnsOnCall map[int]struct {
+		result1 db.User
 		result2 error
 	}
 	ListAccountsStub        func(context.Context, db.ListAccountsParams) ([]db.Account, error)
@@ -467,6 +495,71 @@ func (fake *FakeStore) CreateTransferReturnsOnCall(i int, result1 db.Transfer, r
 	}{result1, result2}
 }
 
+func (fake *FakeStore) CreateUser(arg1 context.Context, arg2 db.CreateUserParams) (db.User, error) {
+	fake.createUserMutex.Lock()
+	ret, specificReturn := fake.createUserReturnsOnCall[len(fake.createUserArgsForCall)]
+	fake.createUserArgsForCall = append(fake.createUserArgsForCall, struct {
+		arg1 context.Context
+		arg2 db.CreateUserParams
+	}{arg1, arg2})
+	stub := fake.CreateUserStub
+	fakeReturns := fake.createUserReturns
+	fake.recordInvocation("CreateUser", []interface{}{arg1, arg2})
+	fake.createUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStore) CreateUserCallCount() int {
+	fake.createUserMutex.RLock()
+	defer fake.createUserMutex.RUnlock()
+	return len(fake.createUserArgsForCall)
+}
+
+func (fake *FakeStore) CreateUserCalls(stub func(context.Context, db.CreateUserParams) (db.User, error)) {
+	fake.createUserMutex.Lock()
+	defer fake.createUserMutex.Unlock()
+	fake.CreateUserStub = stub
+}
+
+func (fake *FakeStore) CreateUserArgsForCall(i int) (context.Context, db.CreateUserParams) {
+	fake.createUserMutex.RLock()
+	defer fake.createUserMutex.RUnlock()
+	argsForCall := fake.createUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeStore) CreateUserReturns(result1 db.User, result2 error) {
+	fake.createUserMutex.Lock()
+	defer fake.createUserMutex.Unlock()
+	fake.CreateUserStub = nil
+	fake.createUserReturns = struct {
+		result1 db.User
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) CreateUserReturnsOnCall(i int, result1 db.User, result2 error) {
+	fake.createUserMutex.Lock()
+	defer fake.createUserMutex.Unlock()
+	fake.CreateUserStub = nil
+	if fake.createUserReturnsOnCall == nil {
+		fake.createUserReturnsOnCall = make(map[int]struct {
+			result1 db.User
+			result2 error
+		})
+	}
+	fake.createUserReturnsOnCall[i] = struct {
+		result1 db.User
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeStore) DeleteAccount(arg1 context.Context, arg2 int64) error {
 	fake.deleteAccountMutex.Lock()
 	ret, specificReturn := fake.deleteAccountReturnsOnCall[len(fake.deleteAccountArgsForCall)]
@@ -785,6 +878,71 @@ func (fake *FakeStore) GetTransferReturnsOnCall(i int, result1 db.Transfer, resu
 	}
 	fake.getTransferReturnsOnCall[i] = struct {
 		result1 db.Transfer
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) GetUser(arg1 context.Context, arg2 string) (db.User, error) {
+	fake.getUserMutex.Lock()
+	ret, specificReturn := fake.getUserReturnsOnCall[len(fake.getUserArgsForCall)]
+	fake.getUserArgsForCall = append(fake.getUserArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetUserStub
+	fakeReturns := fake.getUserReturns
+	fake.recordInvocation("GetUser", []interface{}{arg1, arg2})
+	fake.getUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStore) GetUserCallCount() int {
+	fake.getUserMutex.RLock()
+	defer fake.getUserMutex.RUnlock()
+	return len(fake.getUserArgsForCall)
+}
+
+func (fake *FakeStore) GetUserCalls(stub func(context.Context, string) (db.User, error)) {
+	fake.getUserMutex.Lock()
+	defer fake.getUserMutex.Unlock()
+	fake.GetUserStub = stub
+}
+
+func (fake *FakeStore) GetUserArgsForCall(i int) (context.Context, string) {
+	fake.getUserMutex.RLock()
+	defer fake.getUserMutex.RUnlock()
+	argsForCall := fake.getUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeStore) GetUserReturns(result1 db.User, result2 error) {
+	fake.getUserMutex.Lock()
+	defer fake.getUserMutex.Unlock()
+	fake.GetUserStub = nil
+	fake.getUserReturns = struct {
+		result1 db.User
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) GetUserReturnsOnCall(i int, result1 db.User, result2 error) {
+	fake.getUserMutex.Lock()
+	defer fake.getUserMutex.Unlock()
+	fake.GetUserStub = nil
+	if fake.getUserReturnsOnCall == nil {
+		fake.getUserReturnsOnCall = make(map[int]struct {
+			result1 db.User
+			result2 error
+		})
+	}
+	fake.getUserReturnsOnCall[i] = struct {
+		result1 db.User
 		result2 error
 	}{result1, result2}
 }
@@ -1125,6 +1283,8 @@ func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	defer fake.createEntryMutex.RUnlock()
 	fake.createTransferMutex.RLock()
 	defer fake.createTransferMutex.RUnlock()
+	fake.createUserMutex.RLock()
+	defer fake.createUserMutex.RUnlock()
 	fake.deleteAccountMutex.RLock()
 	defer fake.deleteAccountMutex.RUnlock()
 	fake.getAccountMutex.RLock()
@@ -1135,6 +1295,8 @@ func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	defer fake.getEntryMutex.RUnlock()
 	fake.getTransferMutex.RLock()
 	defer fake.getTransferMutex.RUnlock()
+	fake.getUserMutex.RLock()
+	defer fake.getUserMutex.RUnlock()
 	fake.listAccountsMutex.RLock()
 	defer fake.listAccountsMutex.RUnlock()
 	fake.listEntriesMutex.RLock()
