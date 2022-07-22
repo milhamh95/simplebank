@@ -10,26 +10,40 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/milhamh95/simplebank/db/fake"
 	db "github.com/milhamh95/simplebank/db/sqlc"
 	"github.com/milhamh95/simplebank/pkg/random"
+	"github.com/milhamh95/simplebank/token"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetAccountAPI(t *testing.T) {
-	account := randomAccount()
+	user, _ := randomUser(t)
+	account := randomAccount(user.Username)
 	testCases := []struct {
 		name               string
 		accountID          int64
+		setupAuth          func(t *testing.T, req *http.Request, tokenMaker token.Tokener)
 		callGetAccountStub bool
 		getAccountStub     func(store *fake.FakeStore)
 		checkResponse      func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name:               "success",
-			accountID:          account.ID,
+			name:      "success",
+			accountID: account.ID,
+			setupAuth: func(t *testing.T, req *http.Request, tokenMaker token.Tokener) {
+				addAuthorization(
+					t,
+					req,
+					tokenMaker,
+					authorizationTypeBearer,
+					user.Username,
+					time.Minute,
+				)
+			},
 			callGetAccountStub: true,
 			getAccountStub: func(store *fake.FakeStore) {
 				store.GetAccountReturns(account, nil)
@@ -40,8 +54,18 @@ func TestGetAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name:               "not found",
-			accountID:          account.ID,
+			name:      "not found",
+			accountID: account.ID,
+			setupAuth: func(t *testing.T, req *http.Request, tokenMaker token.Tokener) {
+				addAuthorization(
+					t,
+					req,
+					tokenMaker,
+					authorizationTypeBearer,
+					user.Username,
+					time.Minute,
+				)
+			},
 			callGetAccountStub: true,
 			getAccountStub: func(store *fake.FakeStore) {
 				store.GetAccountReturns(db.Account{}, sql.ErrNoRows)
@@ -51,8 +75,18 @@ func TestGetAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name:               "unknown error",
-			accountID:          account.ID,
+			name:      "unknown error",
+			accountID: account.ID,
+			setupAuth: func(t *testing.T, req *http.Request, tokenMaker token.Tokener) {
+				addAuthorization(
+					t,
+					req,
+					tokenMaker,
+					authorizationTypeBearer,
+					user.Username,
+					time.Minute,
+				)
+			},
 			callGetAccountStub: true,
 			getAccountStub: func(store *fake.FakeStore) {
 				store.GetAccountReturns(db.Account{}, errors.New("unknown error"))
@@ -62,8 +96,18 @@ func TestGetAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name:               "invalid id",
-			accountID:          0,
+			name:      "invalid id",
+			accountID: 0,
+			setupAuth: func(t *testing.T, req *http.Request, tokenMaker token.Tokener) {
+				addAuthorization(
+					t,
+					req,
+					tokenMaker,
+					authorizationTypeBearer,
+					user.Username,
+					time.Minute,
+				)
+			},
 			callGetAccountStub: false,
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
@@ -86,16 +130,17 @@ func TestGetAccountAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
 	}
 }
 
-func randomAccount() db.Account {
+func randomAccount(owner string) db.Account {
 	return db.Account{
 		ID:       random.RandomInt(1, 1000),
-		Owner:    random.RandomOwner(),
+		Owner:    owner,
 		Balance:  random.RandomMoney(),
 		Currency: random.RandomCurrency(),
 	}
