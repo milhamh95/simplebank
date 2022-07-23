@@ -46,6 +46,12 @@ test: ## run test
 server: ## run server
 	@go run -race main.go
 
+.PHONY: docker-image
+docker-image: ## Build simplebank docker image
+	@docker build -t simplebank:latest .
+
 .PHONY: fake
 fake: ## generate fake
 	@counterfeiter -o ./db/fake ./db/sqlc Store
+
+
