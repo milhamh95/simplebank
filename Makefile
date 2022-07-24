@@ -1,3 +1,16 @@
+.PHONY: api-up
+api-up: ## Start api
+	@docker-compose up
+
+.PHONY: api-stop
+api-stop: ## Stop api
+	@docker stop simplebank_api simplebank_postgres
+
+.PHONY: api-down
+api-down: ## Down / delete api
+	@docker-compose down simplebank_api simplebank_postgres
+	@docker rmi simplebank_api:latest
+
 .PHONY: postgres-up
 postgres-up: ## Start postgres
 	@docker-compose up -d postgres
