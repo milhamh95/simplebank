@@ -5,6 +5,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/google/uuid"
 	db "github.com/milhamh95/simplebank/db/sqlc"
 )
 
@@ -49,6 +50,20 @@ type FakeStore struct {
 	}
 	createEntryReturnsOnCall map[int]struct {
 		result1 db.Entry
+		result2 error
+	}
+	CreateSessionStub        func(context.Context, db.CreateSessionParams) (db.Session, error)
+	createSessionMutex       sync.RWMutex
+	createSessionArgsForCall []struct {
+		arg1 context.Context
+		arg2 db.CreateSessionParams
+	}
+	createSessionReturns struct {
+		result1 db.Session
+		result2 error
+	}
+	createSessionReturnsOnCall map[int]struct {
+		result1 db.Session
 		result2 error
 	}
 	CreateTransferStub        func(context.Context, db.CreateTransferParams) (db.Transfer, error)
@@ -131,6 +146,20 @@ type FakeStore struct {
 	}
 	getEntryReturnsOnCall map[int]struct {
 		result1 db.Entry
+		result2 error
+	}
+	GetSessionStub        func(context.Context, uuid.UUID) (db.Session, error)
+	getSessionMutex       sync.RWMutex
+	getSessionArgsForCall []struct {
+		arg1 context.Context
+		arg2 uuid.UUID
+	}
+	getSessionReturns struct {
+		result1 db.Session
+		result2 error
+	}
+	getSessionReturnsOnCall map[int]struct {
+		result1 db.Session
 		result2 error
 	}
 	GetTransferStub        func(context.Context, int64) (db.Transfer, error)
@@ -426,6 +455,71 @@ func (fake *FakeStore) CreateEntryReturnsOnCall(i int, result1 db.Entry, result2
 	}
 	fake.createEntryReturnsOnCall[i] = struct {
 		result1 db.Entry
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) CreateSession(arg1 context.Context, arg2 db.CreateSessionParams) (db.Session, error) {
+	fake.createSessionMutex.Lock()
+	ret, specificReturn := fake.createSessionReturnsOnCall[len(fake.createSessionArgsForCall)]
+	fake.createSessionArgsForCall = append(fake.createSessionArgsForCall, struct {
+		arg1 context.Context
+		arg2 db.CreateSessionParams
+	}{arg1, arg2})
+	stub := fake.CreateSessionStub
+	fakeReturns := fake.createSessionReturns
+	fake.recordInvocation("CreateSession", []interface{}{arg1, arg2})
+	fake.createSessionMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStore) CreateSessionCallCount() int {
+	fake.createSessionMutex.RLock()
+	defer fake.createSessionMutex.RUnlock()
+	return len(fake.createSessionArgsForCall)
+}
+
+func (fake *FakeStore) CreateSessionCalls(stub func(context.Context, db.CreateSessionParams) (db.Session, error)) {
+	fake.createSessionMutex.Lock()
+	defer fake.createSessionMutex.Unlock()
+	fake.CreateSessionStub = stub
+}
+
+func (fake *FakeStore) CreateSessionArgsForCall(i int) (context.Context, db.CreateSessionParams) {
+	fake.createSessionMutex.RLock()
+	defer fake.createSessionMutex.RUnlock()
+	argsForCall := fake.createSessionArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeStore) CreateSessionReturns(result1 db.Session, result2 error) {
+	fake.createSessionMutex.Lock()
+	defer fake.createSessionMutex.Unlock()
+	fake.CreateSessionStub = nil
+	fake.createSessionReturns = struct {
+		result1 db.Session
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) CreateSessionReturnsOnCall(i int, result1 db.Session, result2 error) {
+	fake.createSessionMutex.Lock()
+	defer fake.createSessionMutex.Unlock()
+	fake.CreateSessionStub = nil
+	if fake.createSessionReturnsOnCall == nil {
+		fake.createSessionReturnsOnCall = make(map[int]struct {
+			result1 db.Session
+			result2 error
+		})
+	}
+	fake.createSessionReturnsOnCall[i] = struct {
+		result1 db.Session
 		result2 error
 	}{result1, result2}
 }
@@ -813,6 +907,71 @@ func (fake *FakeStore) GetEntryReturnsOnCall(i int, result1 db.Entry, result2 er
 	}
 	fake.getEntryReturnsOnCall[i] = struct {
 		result1 db.Entry
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) GetSession(arg1 context.Context, arg2 uuid.UUID) (db.Session, error) {
+	fake.getSessionMutex.Lock()
+	ret, specificReturn := fake.getSessionReturnsOnCall[len(fake.getSessionArgsForCall)]
+	fake.getSessionArgsForCall = append(fake.getSessionArgsForCall, struct {
+		arg1 context.Context
+		arg2 uuid.UUID
+	}{arg1, arg2})
+	stub := fake.GetSessionStub
+	fakeReturns := fake.getSessionReturns
+	fake.recordInvocation("GetSession", []interface{}{arg1, arg2})
+	fake.getSessionMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStore) GetSessionCallCount() int {
+	fake.getSessionMutex.RLock()
+	defer fake.getSessionMutex.RUnlock()
+	return len(fake.getSessionArgsForCall)
+}
+
+func (fake *FakeStore) GetSessionCalls(stub func(context.Context, uuid.UUID) (db.Session, error)) {
+	fake.getSessionMutex.Lock()
+	defer fake.getSessionMutex.Unlock()
+	fake.GetSessionStub = stub
+}
+
+func (fake *FakeStore) GetSessionArgsForCall(i int) (context.Context, uuid.UUID) {
+	fake.getSessionMutex.RLock()
+	defer fake.getSessionMutex.RUnlock()
+	argsForCall := fake.getSessionArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeStore) GetSessionReturns(result1 db.Session, result2 error) {
+	fake.getSessionMutex.Lock()
+	defer fake.getSessionMutex.Unlock()
+	fake.GetSessionStub = nil
+	fake.getSessionReturns = struct {
+		result1 db.Session
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) GetSessionReturnsOnCall(i int, result1 db.Session, result2 error) {
+	fake.getSessionMutex.Lock()
+	defer fake.getSessionMutex.Unlock()
+	fake.GetSessionStub = nil
+	if fake.getSessionReturnsOnCall == nil {
+		fake.getSessionReturnsOnCall = make(map[int]struct {
+			result1 db.Session
+			result2 error
+		})
+	}
+	fake.getSessionReturnsOnCall[i] = struct {
+		result1 db.Session
 		result2 error
 	}{result1, result2}
 }
@@ -1281,6 +1440,8 @@ func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	defer fake.createAccountMutex.RUnlock()
 	fake.createEntryMutex.RLock()
 	defer fake.createEntryMutex.RUnlock()
+	fake.createSessionMutex.RLock()
+	defer fake.createSessionMutex.RUnlock()
 	fake.createTransferMutex.RLock()
 	defer fake.createTransferMutex.RUnlock()
 	fake.createUserMutex.RLock()
@@ -1293,6 +1454,8 @@ func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	defer fake.getAccountForUpdateMutex.RUnlock()
 	fake.getEntryMutex.RLock()
 	defer fake.getEntryMutex.RUnlock()
+	fake.getSessionMutex.RLock()
+	defer fake.getSessionMutex.RUnlock()
 	fake.getTransferMutex.RLock()
 	defer fake.getTransferMutex.RUnlock()
 	fake.getUserMutex.RLock()
