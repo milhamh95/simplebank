@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"net"
+	"net/http"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/lib/pq"
 	"github.com/milhamh95/simplebank/api"
 	db "github.com/milhamh95/simplebank/db/sqlc"
@@ -13,6 +16,7 @@ import (
 	"github.com/milhamh95/simplebank/pkg/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func main() {
@@ -26,6 +30,7 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
+	go runGatewayServer(cfg, store)
 	runGrpcServer(cfg, store)
 }
 
@@ -51,7 +56,47 @@ func runGrpcServer(cfg config.Config, store db.Store) {
 	if err != nil {
 		log.Fatal("cannot start gRPC server")
 	}
+}
 
+func runGatewayServer(cfg config.Config, store db.Store) {
+	server, err := gapi.NewServer(cfg, store)
+	if err != nil {
+		log.Fatal("initialize server:", err)
+	}
+
+	grpcMux := runtime.NewServeMux(
+		// json option
+		// to make response http gateway same as defined in protobuf file
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+			MarshalOptions: protojson.MarshalOptions{
+				UseProtoNames: true,
+			},
+			UnmarshalOptions: protojson.UnmarshalOptions{
+				DiscardUnknown: true,
+			},
+		}),
+	)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	err = pb.RegisterSimpleBankHandlerServer(ctx, grpcMux, server)
+	if err != nil {
+		log.Fatal("cannot register handler server:", err)
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/", grpcMux)
+
+	listener, err := net.Listen("tcp", cfg.HTTPServerAddress)
+	if err != nil {
+		log.Fatal("cannot create listener:", err)
+	}
+
+	log.Printf("start HTTP Gateway server at: %s", listener.Addr().String())
+	err = http.Serve(listener, mux)
+	if err != nil {
+		log.Fatal("cannot start HTTP gateway server:", err)
+	}
 }
 
 func runGinServer(cfg config.Config, store db.Store) {
