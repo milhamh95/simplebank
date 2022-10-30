@@ -260,6 +260,20 @@ type FakeStore struct {
 		result1 db.Account
 		result2 error
 	}
+	UpdateUserStub        func(context.Context, db.UpdateUserParams) (db.User, error)
+	updateUserMutex       sync.RWMutex
+	updateUserArgsForCall []struct {
+		arg1 context.Context
+		arg2 db.UpdateUserParams
+	}
+	updateUserReturns struct {
+		result1 db.User
+		result2 error
+	}
+	updateUserReturnsOnCall map[int]struct {
+		result1 db.User
+		result2 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -1431,6 +1445,71 @@ func (fake *FakeStore) UpdateAccountReturnsOnCall(i int, result1 db.Account, res
 	}{result1, result2}
 }
 
+func (fake *FakeStore) UpdateUser(arg1 context.Context, arg2 db.UpdateUserParams) (db.User, error) {
+	fake.updateUserMutex.Lock()
+	ret, specificReturn := fake.updateUserReturnsOnCall[len(fake.updateUserArgsForCall)]
+	fake.updateUserArgsForCall = append(fake.updateUserArgsForCall, struct {
+		arg1 context.Context
+		arg2 db.UpdateUserParams
+	}{arg1, arg2})
+	stub := fake.UpdateUserStub
+	fakeReturns := fake.updateUserReturns
+	fake.recordInvocation("UpdateUser", []interface{}{arg1, arg2})
+	fake.updateUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStore) UpdateUserCallCount() int {
+	fake.updateUserMutex.RLock()
+	defer fake.updateUserMutex.RUnlock()
+	return len(fake.updateUserArgsForCall)
+}
+
+func (fake *FakeStore) UpdateUserCalls(stub func(context.Context, db.UpdateUserParams) (db.User, error)) {
+	fake.updateUserMutex.Lock()
+	defer fake.updateUserMutex.Unlock()
+	fake.UpdateUserStub = stub
+}
+
+func (fake *FakeStore) UpdateUserArgsForCall(i int) (context.Context, db.UpdateUserParams) {
+	fake.updateUserMutex.RLock()
+	defer fake.updateUserMutex.RUnlock()
+	argsForCall := fake.updateUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeStore) UpdateUserReturns(result1 db.User, result2 error) {
+	fake.updateUserMutex.Lock()
+	defer fake.updateUserMutex.Unlock()
+	fake.UpdateUserStub = nil
+	fake.updateUserReturns = struct {
+		result1 db.User
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) UpdateUserReturnsOnCall(i int, result1 db.User, result2 error) {
+	fake.updateUserMutex.Lock()
+	defer fake.updateUserMutex.Unlock()
+	fake.UpdateUserStub = nil
+	if fake.updateUserReturnsOnCall == nil {
+		fake.updateUserReturnsOnCall = make(map[int]struct {
+			result1 db.User
+			result2 error
+		})
+	}
+	fake.updateUserReturnsOnCall[i] = struct {
+		result1 db.User
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -1470,6 +1549,8 @@ func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	defer fake.transferTrxMutex.RUnlock()
 	fake.updateAccountMutex.RLock()
 	defer fake.updateAccountMutex.RUnlock()
+	fake.updateUserMutex.RLock()
+	defer fake.updateUserMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
