@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/rs/zerolog"
 	"net"
 	"net/http"
 	"os"
+
+	"github.com/rs/zerolog"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -139,7 +140,8 @@ func runGatewayServer(cfg config.Config, store db.Store) {
 	}
 
 	log.Printf("start HTTP Gateway server at: %s", listener.Addr().String())
-	err = http.Serve(listener, mux)
+	handler := gapi.HttpLogger(mux)
+	err = http.Serve(listener, handler)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot start HTTP gateway server")
 	}
