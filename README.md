@@ -18,3 +18,4 @@ use `select for no key update`
 
 - Generate open api 3 doc using grpc plugin
 - Need to search grpc plugin support open api 3 doc
+- add `make help` command
