@@ -9,6 +9,14 @@ services:
       - POSTGRES_DB=simple_bank
     ports:
       - "5433:5432"
+
+  redis:
+    container_name: simplebank_redis
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+
   api:
     container_name: simplebank_api
     build:

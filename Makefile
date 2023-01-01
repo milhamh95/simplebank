@@ -21,6 +21,15 @@ postgres-up: ## Start postgres
 postgres-down: ## Shutdown postgres
 	@docker stop simplebank_postgres
 
+.PHONY: redis-up
+redis-up: ## Start redis
+	@docker-compose up -d redis
+
+.PHONY: redis-down
+redis-down: ## Shutdown redis
+	@docker stop simplebank_redis
+
+
 .PHONY: createdb
 createdb: ## create database
 	@docker exec -it postgres createdb --username=root --owner=root simple_bank
