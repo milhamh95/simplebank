@@ -2,6 +2,9 @@ package gapi
 
 import (
 	"context"
+	"github.com/hibiken/asynq"
+	"github.com/milhamh95/simplebank/worker"
+	"time"
 
 	"github.com/lib/pq"
 	db "github.com/milhamh95/simplebank/db/sqlc"
@@ -48,6 +51,20 @@ func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb
 		}
 
 		return nil, status.Errorf(codes.Internal, "create user: %s", err.Error())
+	}
+
+	// TODO: use db transaction
+	taskPayload := &worker.PayloadSendVerifyEmail{
+		Username: user.Username,
+	}
+	opts := []asynq.Option{
+		asynq.MaxRetry(10),
+		asynq.ProcessIn(10 * time.Second),
+		asynq.Queue(worker.QueueCritical),
+	}
+	err = s.taskDistributor.DistributeTaskSenderVerifyEmail(ctx, taskPayload, opts...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "distribute task to send verify email: %s", err.Error())
 	}
 
 	rsp := &pb.CreateUserResponse{

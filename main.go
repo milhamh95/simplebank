@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/hibiken/asynq"
+	"github.com/milhamh95/simplebank/worker"
 	"net"
 	"net/http"
 	"os"
@@ -51,8 +53,18 @@ func main() {
 	runDBMigration(cfg.MigrationURL, cfg.DBSource)
 
 	store := db.NewStore(conn)
-	go runGatewayServer(cfg, store)
-	runGrpcServer(cfg, store)
+
+	redisOpt := asynq.RedisClientOpt{
+		Addr: cfg.RedisAddress,
+	}
+
+	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
+	// use goroutine for task processor
+	// because it will block by get all data
+	// from redis
+	go runTaskProcessor(redisOpt, store)
+	go runGatewayServer(cfg, store, taskDistributor)
+	runGrpcServer(cfg, store, taskDistributor)
 }
 
 func runDBMigration(migrationURL string, dbSource string) {
@@ -71,8 +83,17 @@ func runDBMigration(migrationURL string, dbSource string) {
 	log.Info().Msg("db migrated successfully")
 }
 
-func runGrpcServer(cfg config.Config, store db.Store) {
-	server, err := gapi.NewServer(cfg, store)
+func runTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store) {
+	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store)
+	log.Info().Msg("start task processor")
+	err := taskProcessor.Start()
+	if err != nil {
+		log.Fatal().Err(err).Msg("start task processor")
+	}
+}
+
+func runGrpcServer(cfg config.Config, store db.Store, taskDistributor worker.TaskDistributor) {
+	server, err := gapi.NewServer(cfg, store, taskDistributor)
 	if err != nil {
 		log.Fatal().Err(err).Msg("initialize server:")
 	}
@@ -96,8 +117,8 @@ func runGrpcServer(cfg config.Config, store db.Store) {
 	}
 }
 
-func runGatewayServer(cfg config.Config, store db.Store) {
-	server, err := gapi.NewServer(cfg, store)
+func runGatewayServer(cfg config.Config, store db.Store, taskDistributor worker.TaskDistributor) {
+	server, err := gapi.NewServer(cfg, store, taskDistributor)
 	if err != nil {
 		log.Fatal().Err(err).Msg("initialize server")
 	}
