@@ -31,14 +31,32 @@ func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb
 		)
 	}
 
-	arg := db.CreateUserParams{
-		Username:       req.GetUsername(),
-		HashedPassword: hashedPassword,
-		FullName:       req.GetFullName(),
-		Email:          req.GetEmail(),
+	arg := db.CreateUserTxParams{
+		CreateUserParams: db.CreateUserParams{
+			Username:       req.GetUsername(),
+			HashedPassword: hashedPassword,
+			FullName:       req.GetFullName(),
+			Email:          req.GetEmail(),
+		},
+		AfterCreate: func(user db.User) error {
+			taskPayload := &worker.PayloadSendVerifyEmail{
+				Username: user.Username,
+			}
+			opts := []asynq.Option{
+				asynq.MaxRetry(10),
+				asynq.ProcessIn(10 * time.Second),
+				asynq.Queue(worker.QueueCritical),
+			}
+			err = s.taskDistributor.DistributeTaskSenderVerifyEmail(ctx, taskPayload, opts...)
+			if err != nil {
+				return status.Errorf(codes.Internal, "distribute task to send verify email: %s", err.Error())
+			}
+
+			return nil
+		},
 	}
 
-	user, err := s.store.CreateUser(ctx, arg)
+	txResult, err := s.store.CreateUserTrx(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -53,27 +71,13 @@ func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb
 		return nil, status.Errorf(codes.Internal, "create user: %s", err.Error())
 	}
 
-	// TODO: use db transaction
-	taskPayload := &worker.PayloadSendVerifyEmail{
-		Username: user.Username,
-	}
-	opts := []asynq.Option{
-		asynq.MaxRetry(10),
-		asynq.ProcessIn(10 * time.Second),
-		asynq.Queue(worker.QueueCritical),
-	}
-	err = s.taskDistributor.DistributeTaskSenderVerifyEmail(ctx, taskPayload, opts...)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "distribute task to send verify email: %s", err.Error())
-	}
-
 	rsp := &pb.CreateUserResponse{
 		User: &pb.User{
-			Username:          user.Username,
-			FullName:          user.FullName,
-			Email:             user.Email,
-			PasswordChangedAt: timestamppb.New(user.PasswordChangedAt),
-			CreatedAt:         timestamppb.New(user.CreatedAt),
+			Username:          txResult.User.Username,
+			FullName:          txResult.User.FullName,
+			Email:             txResult.User.Email,
+			PasswordChangedAt: timestamppb.New(txResult.User.PasswordChangedAt),
+			CreatedAt:         timestamppb.New(txResult.User.CreatedAt),
 		},
 	}
 

@@ -94,6 +94,20 @@ type FakeStore struct {
 		result1 db.User
 		result2 error
 	}
+	CreateUserTrxStub        func(context.Context, db.CreateUserTxParams) (db.CreateUserTxResult, error)
+	createUserTrxMutex       sync.RWMutex
+	createUserTrxArgsForCall []struct {
+		arg1 context.Context
+		arg2 db.CreateUserTxParams
+	}
+	createUserTrxReturns struct {
+		result1 db.CreateUserTxResult
+		result2 error
+	}
+	createUserTrxReturnsOnCall map[int]struct {
+		result1 db.CreateUserTxResult
+		result2 error
+	}
 	DeleteAccountStub        func(context.Context, int64) error
 	deleteAccountMutex       sync.RWMutex
 	deleteAccountArgsForCall []struct {
@@ -664,6 +678,71 @@ func (fake *FakeStore) CreateUserReturnsOnCall(i int, result1 db.User, result2 e
 	}
 	fake.createUserReturnsOnCall[i] = struct {
 		result1 db.User
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) CreateUserTrx(arg1 context.Context, arg2 db.CreateUserTxParams) (db.CreateUserTxResult, error) {
+	fake.createUserTrxMutex.Lock()
+	ret, specificReturn := fake.createUserTrxReturnsOnCall[len(fake.createUserTrxArgsForCall)]
+	fake.createUserTrxArgsForCall = append(fake.createUserTrxArgsForCall, struct {
+		arg1 context.Context
+		arg2 db.CreateUserTxParams
+	}{arg1, arg2})
+	stub := fake.CreateUserTrxStub
+	fakeReturns := fake.createUserTrxReturns
+	fake.recordInvocation("CreateUserTrx", []interface{}{arg1, arg2})
+	fake.createUserTrxMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStore) CreateUserTrxCallCount() int {
+	fake.createUserTrxMutex.RLock()
+	defer fake.createUserTrxMutex.RUnlock()
+	return len(fake.createUserTrxArgsForCall)
+}
+
+func (fake *FakeStore) CreateUserTrxCalls(stub func(context.Context, db.CreateUserTxParams) (db.CreateUserTxResult, error)) {
+	fake.createUserTrxMutex.Lock()
+	defer fake.createUserTrxMutex.Unlock()
+	fake.CreateUserTrxStub = stub
+}
+
+func (fake *FakeStore) CreateUserTrxArgsForCall(i int) (context.Context, db.CreateUserTxParams) {
+	fake.createUserTrxMutex.RLock()
+	defer fake.createUserTrxMutex.RUnlock()
+	argsForCall := fake.createUserTrxArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeStore) CreateUserTrxReturns(result1 db.CreateUserTxResult, result2 error) {
+	fake.createUserTrxMutex.Lock()
+	defer fake.createUserTrxMutex.Unlock()
+	fake.CreateUserTrxStub = nil
+	fake.createUserTrxReturns = struct {
+		result1 db.CreateUserTxResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) CreateUserTrxReturnsOnCall(i int, result1 db.CreateUserTxResult, result2 error) {
+	fake.createUserTrxMutex.Lock()
+	defer fake.createUserTrxMutex.Unlock()
+	fake.CreateUserTrxStub = nil
+	if fake.createUserTrxReturnsOnCall == nil {
+		fake.createUserTrxReturnsOnCall = make(map[int]struct {
+			result1 db.CreateUserTxResult
+			result2 error
+		})
+	}
+	fake.createUserTrxReturnsOnCall[i] = struct {
+		result1 db.CreateUserTxResult
 		result2 error
 	}{result1, result2}
 }
@@ -1525,6 +1604,8 @@ func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	defer fake.createTransferMutex.RUnlock()
 	fake.createUserMutex.RLock()
 	defer fake.createUserMutex.RUnlock()
+	fake.createUserTrxMutex.RLock()
+	defer fake.createUserTrxMutex.RUnlock()
 	fake.deleteAccountMutex.RLock()
 	defer fake.deleteAccountMutex.RUnlock()
 	fake.getAccountMutex.RLock()
