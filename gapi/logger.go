@@ -38,6 +38,8 @@ func GrpcLogger(
 		Int("status_code", int(statusCode)).
 		Str("status_text", statusCode.String()).
 		Dur("duration", duration).
+		Interface("request", req).
+		Interface("response", result).
 		Msg("received a gRPC request")
 
 	return result, err
