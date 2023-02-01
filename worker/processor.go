@@ -2,8 +2,11 @@ package worker
 
 import (
 	"context"
-	"github.com/hibiken/asynq"
+
 	db "github.com/milhamh95/simplebank/db/sqlc"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/hibiken/asynq"
 	"github.com/rs/zerolog/log"
 )
 
@@ -23,6 +26,9 @@ type RedisTaskProcessor struct {
 }
 
 func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store) TaskProcessor {
+	logger := NewLogger()
+	redis.SetLogger(logger)
+
 	server := asynq.NewServer(
 		redisOpt,
 		asynq.Config{
@@ -36,7 +42,7 @@ func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store) TaskPr
 					Bytes("payload", task.Payload()).
 					Msg("process task")
 			}),
-			Logger: NewLogger(),
+			Logger: logger,
 		},
 	)
 

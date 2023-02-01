@@ -2,7 +2,7 @@ package worker
 
 import (
 	"fmt"
-	
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -12,6 +12,10 @@ type Logger struct {
 
 func NewLogger() *Logger {
 	return &Logger{}
+}
+
+func (l *Logger) Printf(ctx context.Context, format string, v ...interface{}) {
+	log.WithLevel(zerolog.DebugLevel).Msgf(format, v...)
 }
 
 func (l *Logger) Print(level zerolog.Level, args ...interface{}) {
