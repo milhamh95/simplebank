@@ -2,6 +2,7 @@ package worker
 
 import (
 	"fmt"
+	"golang.org/x/net/context"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
