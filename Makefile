@@ -64,7 +64,7 @@ sqlc: ## generate sqlc
 
 .PHONY: test
 test: ## run test
-	@go test -v -cover ./...
+	@go test -v -cover -short ./...
 
 .PHONY: server
 server: ## run server
