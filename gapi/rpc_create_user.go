@@ -44,6 +44,9 @@ func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb
 			}
 			opts := []asynq.Option{
 				asynq.MaxRetry(10),
+				// need to delay send task to redis pub sub
+				// so we can maske sure insert data to database first
+				// then async task is able to get the dat
 				asynq.ProcessIn(10 * time.Second),
 				asynq.Queue(worker.QueueCritical),
 			}
