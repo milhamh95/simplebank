@@ -302,6 +302,34 @@ type FakeStore struct {
 		result1 db.User
 		result2 error
 	}
+	UpdateVerifyEmailStub        func(context.Context, db.UpdateVerifyEmailParams) (db.VerifyEmail, error)
+	updateVerifyEmailMutex       sync.RWMutex
+	updateVerifyEmailArgsForCall []struct {
+		arg1 context.Context
+		arg2 db.UpdateVerifyEmailParams
+	}
+	updateVerifyEmailReturns struct {
+		result1 db.VerifyEmail
+		result2 error
+	}
+	updateVerifyEmailReturnsOnCall map[int]struct {
+		result1 db.VerifyEmail
+		result2 error
+	}
+	VerifyEmailTxStub        func(context.Context, db.VerifyEmailTxParams) (db.VerifyEmailTxResult, error)
+	verifyEmailTxMutex       sync.RWMutex
+	verifyEmailTxArgsForCall []struct {
+		arg1 context.Context
+		arg2 db.VerifyEmailTxParams
+	}
+	verifyEmailTxReturns struct {
+		result1 db.VerifyEmailTxResult
+		result2 error
+	}
+	verifyEmailTxReturnsOnCall map[int]struct {
+		result1 db.VerifyEmailTxResult
+		result2 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -1668,6 +1696,136 @@ func (fake *FakeStore) UpdateUserReturnsOnCall(i int, result1 db.User, result2 e
 	}{result1, result2}
 }
 
+func (fake *FakeStore) UpdateVerifyEmail(arg1 context.Context, arg2 db.UpdateVerifyEmailParams) (db.VerifyEmail, error) {
+	fake.updateVerifyEmailMutex.Lock()
+	ret, specificReturn := fake.updateVerifyEmailReturnsOnCall[len(fake.updateVerifyEmailArgsForCall)]
+	fake.updateVerifyEmailArgsForCall = append(fake.updateVerifyEmailArgsForCall, struct {
+		arg1 context.Context
+		arg2 db.UpdateVerifyEmailParams
+	}{arg1, arg2})
+	stub := fake.UpdateVerifyEmailStub
+	fakeReturns := fake.updateVerifyEmailReturns
+	fake.recordInvocation("UpdateVerifyEmail", []interface{}{arg1, arg2})
+	fake.updateVerifyEmailMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStore) UpdateVerifyEmailCallCount() int {
+	fake.updateVerifyEmailMutex.RLock()
+	defer fake.updateVerifyEmailMutex.RUnlock()
+	return len(fake.updateVerifyEmailArgsForCall)
+}
+
+func (fake *FakeStore) UpdateVerifyEmailCalls(stub func(context.Context, db.UpdateVerifyEmailParams) (db.VerifyEmail, error)) {
+	fake.updateVerifyEmailMutex.Lock()
+	defer fake.updateVerifyEmailMutex.Unlock()
+	fake.UpdateVerifyEmailStub = stub
+}
+
+func (fake *FakeStore) UpdateVerifyEmailArgsForCall(i int) (context.Context, db.UpdateVerifyEmailParams) {
+	fake.updateVerifyEmailMutex.RLock()
+	defer fake.updateVerifyEmailMutex.RUnlock()
+	argsForCall := fake.updateVerifyEmailArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeStore) UpdateVerifyEmailReturns(result1 db.VerifyEmail, result2 error) {
+	fake.updateVerifyEmailMutex.Lock()
+	defer fake.updateVerifyEmailMutex.Unlock()
+	fake.UpdateVerifyEmailStub = nil
+	fake.updateVerifyEmailReturns = struct {
+		result1 db.VerifyEmail
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) UpdateVerifyEmailReturnsOnCall(i int, result1 db.VerifyEmail, result2 error) {
+	fake.updateVerifyEmailMutex.Lock()
+	defer fake.updateVerifyEmailMutex.Unlock()
+	fake.UpdateVerifyEmailStub = nil
+	if fake.updateVerifyEmailReturnsOnCall == nil {
+		fake.updateVerifyEmailReturnsOnCall = make(map[int]struct {
+			result1 db.VerifyEmail
+			result2 error
+		})
+	}
+	fake.updateVerifyEmailReturnsOnCall[i] = struct {
+		result1 db.VerifyEmail
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) VerifyEmailTx(arg1 context.Context, arg2 db.VerifyEmailTxParams) (db.VerifyEmailTxResult, error) {
+	fake.verifyEmailTxMutex.Lock()
+	ret, specificReturn := fake.verifyEmailTxReturnsOnCall[len(fake.verifyEmailTxArgsForCall)]
+	fake.verifyEmailTxArgsForCall = append(fake.verifyEmailTxArgsForCall, struct {
+		arg1 context.Context
+		arg2 db.VerifyEmailTxParams
+	}{arg1, arg2})
+	stub := fake.VerifyEmailTxStub
+	fakeReturns := fake.verifyEmailTxReturns
+	fake.recordInvocation("VerifyEmailTx", []interface{}{arg1, arg2})
+	fake.verifyEmailTxMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStore) VerifyEmailTxCallCount() int {
+	fake.verifyEmailTxMutex.RLock()
+	defer fake.verifyEmailTxMutex.RUnlock()
+	return len(fake.verifyEmailTxArgsForCall)
+}
+
+func (fake *FakeStore) VerifyEmailTxCalls(stub func(context.Context, db.VerifyEmailTxParams) (db.VerifyEmailTxResult, error)) {
+	fake.verifyEmailTxMutex.Lock()
+	defer fake.verifyEmailTxMutex.Unlock()
+	fake.VerifyEmailTxStub = stub
+}
+
+func (fake *FakeStore) VerifyEmailTxArgsForCall(i int) (context.Context, db.VerifyEmailTxParams) {
+	fake.verifyEmailTxMutex.RLock()
+	defer fake.verifyEmailTxMutex.RUnlock()
+	argsForCall := fake.verifyEmailTxArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeStore) VerifyEmailTxReturns(result1 db.VerifyEmailTxResult, result2 error) {
+	fake.verifyEmailTxMutex.Lock()
+	defer fake.verifyEmailTxMutex.Unlock()
+	fake.VerifyEmailTxStub = nil
+	fake.verifyEmailTxReturns = struct {
+		result1 db.VerifyEmailTxResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) VerifyEmailTxReturnsOnCall(i int, result1 db.VerifyEmailTxResult, result2 error) {
+	fake.verifyEmailTxMutex.Lock()
+	defer fake.verifyEmailTxMutex.Unlock()
+	fake.VerifyEmailTxStub = nil
+	if fake.verifyEmailTxReturnsOnCall == nil {
+		fake.verifyEmailTxReturnsOnCall = make(map[int]struct {
+			result1 db.VerifyEmailTxResult
+			result2 error
+		})
+	}
+	fake.verifyEmailTxReturnsOnCall[i] = struct {
+		result1 db.VerifyEmailTxResult
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -1713,6 +1871,10 @@ func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	defer fake.updateAccountMutex.RUnlock()
 	fake.updateUserMutex.RLock()
 	defer fake.updateUserMutex.RUnlock()
+	fake.updateVerifyEmailMutex.RLock()
+	defer fake.updateVerifyEmailMutex.RUnlock()
+	fake.verifyEmailTxMutex.RLock()
+	defer fake.verifyEmailTxMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
