@@ -6,6 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hibiken/asynq"
+	db "github.com/milhamh95/simplebank/db/sqlc"
+	"github.com/milhamh95/simplebank/mail"
+	"github.com/milhamh95/simplebank/pkg/random"
 	"github.com/rs/zerolog/log"
 )
 
@@ -55,6 +58,28 @@ func (p *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Context, tas
 		}
 		return fmt.Errorf("get user: %w", err)
 	}
+
+	verifyEmail, err := p.store.CreateVerifyEmail(ctx, db.CreateVerifyEmailParams{
+		Username:   user.Username,
+		Email:      user.Email,
+		SecretCode: random.RandomString(32),
+	})
+	if err != nil {
+		return fmt.Errorf("create verify email: %w", err)
+	}
+
+	subject := "Welcome to simple bank"
+	verifyUrl := fmt.Sprintf("http://simple-bank.org/verify_email?id=%d&secret_code=%s", verifyEmail.ID, verifyEmail.SecretCode)
+	content := fmt.Sprintf(`Hello %s, <br />
+	Thank you for registering with use!. <br />
+	Please <a href=%s>click here</a> to verify your email address <br />
+	`, user.Username, verifyUrl)
+	to := []string{user.Email}
+	p.mailer.SendEmail(mail.EmailContent{
+		Subject: subject,
+		Content: content,
+		To:      to,
+	})
 
 	log.Info().
 		Str("type", task.Type()).
