@@ -12,12 +12,12 @@ const (
 )
 
 type EmailContent struct {
-	subject     string
-	content     string
-	to          []string
-	cc          []string
-	bcc         []string
-	attachFiles []string
+	Subject     string
+	Content     string
+	To          []string
+	CC          []string
+	BCC         []string
+	AttachFiles []string
 }
 
 type EmailSender interface {
@@ -41,16 +41,16 @@ func NewGmailSender(name string, fromEmailAddress string, fromEmailPassword stri
 func (s GmailSender) SendEmail(emailContent EmailContent) error {
 	email := emailpkg.NewEmail()
 	email.From = fmt.Sprintf("%s <%s>", s.name, s.fromEmailAddress)
-	email.Subject = emailContent.subject
-	email.HTML = []byte(emailContent.content)
-	email.To = emailContent.to
-	email.Cc = emailContent.cc
-	email.Bcc = emailContent.bcc
+	email.Subject = emailContent.Subject
+	email.HTML = []byte(emailContent.Content)
+	email.To = emailContent.To
+	email.Cc = emailContent.CC
+	email.Bcc = emailContent.BCC
 
-	for _, f := range emailContent.attachFiles {
+	for _, f := range emailContent.AttachFiles {
 		_, err := email.AttachFile(f)
 		if err != nil {
-			return fmt.Errorf("failed to attach file %q: %w", f, err)
+			return fmt.Errorf("failed To attach file %q: %w", f, err)
 		}
 	}
 

@@ -58,6 +58,10 @@ migrate-down1: ## migrate down database
 	@migrate -path db/migration -database "$(DB_URL)" \
 	-path=db/migration -verbose down 1
 
+.PHONY: new-migration
+new-migration: ## create new migration
+	@migrate create -ext sql -dir db/migration -seq $(name)
+
 .PHONY: sqlc
 sqlc: ## generate sqlc
 	@sqlc generate

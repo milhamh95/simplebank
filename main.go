@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/hibiken/asynq"
+	"github.com/milhamh95/simplebank/mail"
 	"github.com/milhamh95/simplebank/worker"
 	"net"
 	"net/http"
@@ -62,7 +63,7 @@ func main() {
 	// use goroutine for task processor
 	// because it will block by get all data
 	// from redis
-	go runTaskProcessor(redisOpt, store)
+	go runTaskProcessor(cfg, redisOpt, store)
 	go runGatewayServer(cfg, store, taskDistributor)
 	runGrpcServer(cfg, store, taskDistributor)
 }
@@ -83,8 +84,9 @@ func runDBMigration(migrationURL string, dbSource string) {
 	log.Info().Msg("db migrated successfully")
 }
 
-func runTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store) {
-	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store)
+func runTaskProcessor(cfg config.Config, redisOpt asynq.RedisClientOpt, store db.Store) {
+	mailer := mail.NewGmailSender(cfg.EmailSenderName, cfg.EmailSenderAddress, cfg.EmailSenderPassword)
+	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store, mailer)
 	log.Info().Msg("start task processor")
 	err := taskProcessor.Start()
 	if err != nil {

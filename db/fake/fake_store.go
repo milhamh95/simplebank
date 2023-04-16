@@ -108,6 +108,20 @@ type FakeStore struct {
 		result1 db.CreateUserTxResult
 		result2 error
 	}
+	CreateVerifyEmailStub        func(context.Context, db.CreateVerifyEmailParams) (db.VerifyEmail, error)
+	createVerifyEmailMutex       sync.RWMutex
+	createVerifyEmailArgsForCall []struct {
+		arg1 context.Context
+		arg2 db.CreateVerifyEmailParams
+	}
+	createVerifyEmailReturns struct {
+		result1 db.VerifyEmail
+		result2 error
+	}
+	createVerifyEmailReturnsOnCall map[int]struct {
+		result1 db.VerifyEmail
+		result2 error
+	}
 	DeleteAccountStub        func(context.Context, int64) error
 	deleteAccountMutex       sync.RWMutex
 	deleteAccountArgsForCall []struct {
@@ -743,6 +757,71 @@ func (fake *FakeStore) CreateUserTrxReturnsOnCall(i int, result1 db.CreateUserTx
 	}
 	fake.createUserTrxReturnsOnCall[i] = struct {
 		result1 db.CreateUserTxResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) CreateVerifyEmail(arg1 context.Context, arg2 db.CreateVerifyEmailParams) (db.VerifyEmail, error) {
+	fake.createVerifyEmailMutex.Lock()
+	ret, specificReturn := fake.createVerifyEmailReturnsOnCall[len(fake.createVerifyEmailArgsForCall)]
+	fake.createVerifyEmailArgsForCall = append(fake.createVerifyEmailArgsForCall, struct {
+		arg1 context.Context
+		arg2 db.CreateVerifyEmailParams
+	}{arg1, arg2})
+	stub := fake.CreateVerifyEmailStub
+	fakeReturns := fake.createVerifyEmailReturns
+	fake.recordInvocation("CreateVerifyEmail", []interface{}{arg1, arg2})
+	fake.createVerifyEmailMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStore) CreateVerifyEmailCallCount() int {
+	fake.createVerifyEmailMutex.RLock()
+	defer fake.createVerifyEmailMutex.RUnlock()
+	return len(fake.createVerifyEmailArgsForCall)
+}
+
+func (fake *FakeStore) CreateVerifyEmailCalls(stub func(context.Context, db.CreateVerifyEmailParams) (db.VerifyEmail, error)) {
+	fake.createVerifyEmailMutex.Lock()
+	defer fake.createVerifyEmailMutex.Unlock()
+	fake.CreateVerifyEmailStub = stub
+}
+
+func (fake *FakeStore) CreateVerifyEmailArgsForCall(i int) (context.Context, db.CreateVerifyEmailParams) {
+	fake.createVerifyEmailMutex.RLock()
+	defer fake.createVerifyEmailMutex.RUnlock()
+	argsForCall := fake.createVerifyEmailArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeStore) CreateVerifyEmailReturns(result1 db.VerifyEmail, result2 error) {
+	fake.createVerifyEmailMutex.Lock()
+	defer fake.createVerifyEmailMutex.Unlock()
+	fake.CreateVerifyEmailStub = nil
+	fake.createVerifyEmailReturns = struct {
+		result1 db.VerifyEmail
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStore) CreateVerifyEmailReturnsOnCall(i int, result1 db.VerifyEmail, result2 error) {
+	fake.createVerifyEmailMutex.Lock()
+	defer fake.createVerifyEmailMutex.Unlock()
+	fake.CreateVerifyEmailStub = nil
+	if fake.createVerifyEmailReturnsOnCall == nil {
+		fake.createVerifyEmailReturnsOnCall = make(map[int]struct {
+			result1 db.VerifyEmail
+			result2 error
+		})
+	}
+	fake.createVerifyEmailReturnsOnCall[i] = struct {
+		result1 db.VerifyEmail
 		result2 error
 	}{result1, result2}
 }
@@ -1606,6 +1685,8 @@ func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	defer fake.createUserMutex.RUnlock()
 	fake.createUserTrxMutex.RLock()
 	defer fake.createUserTrxMutex.RUnlock()
+	fake.createVerifyEmailMutex.RLock()
+	defer fake.createVerifyEmailMutex.RUnlock()
 	fake.deleteAccountMutex.RLock()
 	defer fake.deleteAccountMutex.RUnlock()
 	fake.getAccountMutex.RLock()
