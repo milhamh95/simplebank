@@ -81,6 +81,7 @@ docker-image: ## Build simplebank docker image
 .PHONY: fake
 fake: ## generate fake
 	@counterfeiter -o ./db/fake ./db/sqlc Store
+	@counterfeiter -o ./worker/fake  ./worker TaskDistributor
 
 .PHONY: db_docs
 db_docs: ## generate db docs
