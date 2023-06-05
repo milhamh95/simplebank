@@ -2,7 +2,9 @@ package api
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
+	"github.com/lib/pq"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -39,6 +41,75 @@ func TestCreateUserAPI(t *testing.T) {
 			checkResponse: func(rec *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, rec.Code)
 				requireBodyMatchUser(t, rec.Body, user)
+			},
+		},
+		{
+			name: "Internal Error",
+			body: gin.H{
+				"username":  user.Username,
+				"password":  password,
+				"full_name": user.FullName,
+				"email":     user.Email,
+			},
+			buildStubs: func(store *fake.FakeStore) {
+				store.CreateUserReturns(db.User{}, sql.ErrConnDone)
+			},
+			checkResponse: func(rec *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, rec.Code)
+			},
+		},
+		{
+			name: "duplicate user name",
+			body: gin.H{
+				"username":  user.Username,
+				"password":  password,
+				"full_name": user.FullName,
+				"email":     user.Email,
+			},
+			buildStubs: func(store *fake.FakeStore) {
+				store.CreateUserReturns(db.User{}, &pq.Error{Code: "23505"})
+			},
+			checkResponse: func(rec *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, rec.Code)
+			},
+		},
+		{
+			name: "invalid username",
+			body: gin.H{
+				"username":  "asdf#1",
+				"password":  password,
+				"full_name": user.FullName,
+				"email":     user.Email,
+			},
+			buildStubs: func(store *fake.FakeStore) {},
+			checkResponse: func(rec *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, rec.Code)
+			},
+		},
+		{
+			name: "invalid email",
+			body: gin.H{
+				"username":  user.Username,
+				"password":  password,
+				"full_name": user.FullName,
+				"email":     user.Email,
+			},
+			buildStubs: func(store *fake.FakeStore) {},
+			checkResponse: func(rec *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, rec.Code)
+			},
+		},
+		{
+			name: "password is too short",
+			body: gin.H{
+				"username":  user.Username,
+				"password":  "ab",
+				"full_name": user.FullName,
+				"email":     "invalidemail3#",
+			},
+			buildStubs: func(store *fake.FakeStore) {},
+			checkResponse: func(rec *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, rec.Code)
 			},
 		},
 	}
