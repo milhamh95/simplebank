@@ -16,7 +16,7 @@ import (
 )
 
 func TestCreateUserAPI(t *testing.T) {
-	user, password := randomUser(t)
+	user, pwsd := randomUser(t)
 
 	testCases := []struct {
 		name          string
@@ -28,7 +28,7 @@ func TestCreateUserAPI(t *testing.T) {
 			name: "success",
 			req: &pb.CreateUserRequest{
 				Username: user.Username,
-				Password: password,
+				Password: pwsd,
 				FullName: user.FullName,
 				Email:    user.Email,
 			},
@@ -61,7 +61,7 @@ func TestCreateUserAPI(t *testing.T) {
 			name: "internal error",
 			req: &pb.CreateUserRequest{
 				Username: user.Username,
-				Password: password,
+				Password: pwsd,
 				FullName: user.FullName,
 				Email:    user.Email,
 			},
